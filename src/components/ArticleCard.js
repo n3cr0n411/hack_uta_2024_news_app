@@ -1,9 +1,9 @@
 // src/components/ArticleCard.js
 import React from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import { Card, CardContent, Typography, Box, Link } from "@mui/material";
 
 // ArticleCard component to render individual articles
-const ArticleCard = ({ title, description, trustscore, source, sentimentanalysis, politicalalignment, article, renderDescriptionWithNewlines }) => {
+const ArticleCard = ({ title, description, trustscore, source, sentimentanalysis, politicalalignment, articlelink, article, renderDescriptionWithNewlines }) => {
   return (
     <Box
       sx={{
@@ -35,6 +35,12 @@ const ArticleCard = ({ title, description, trustscore, source, sentimentanalysis
           <Typography variant="subtitle2">
               <strong>Sentiment Analysis: </strong>
               {renderDescriptionWithNewlines(article.sentimentanalysis)}
+          </Typography>
+          <Typography variant="subtitle2">
+              <strong>Article Link: </strong>
+              <Link href={article.articlelink} target="_blank" rel="noopener noreferrer" underline="always" color="primary">
+                {renderDescriptionWithNewlines(article.articlelink)}
+              </Link>
           </Typography>
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 // src/components/MainPage.js
 import React from "react";
-import { Card, CardContent, Typography, Box, Container } from "@mui/material";
+import { Container } from "@mui/material";
+import ArticleCard from "./ArticleCard"; // Import the new ArticleCard component
 
 const MainPage = () => {
   // Sample data for articles
@@ -51,32 +52,17 @@ const MainPage = () => {
         scrollSnapType: "y mandatory", // Snap scrolling on y-axis
         padding: 0,
         margin: 0,
+        width: "100%", // Full-width container
+        backgroundColor: "#f5f5f5", // Background for better readability
       }}
     >
-      {/* Map over articles and render each one */}
+      {/* Map over articles and render each one using ArticleCard */}
       {sampleArticles.map((article) => (
-        <Box
+        <ArticleCard
           key={article.id}
-          sx={{
-            height: "100vh", // Full viewport height per article
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            scrollSnapAlign: "start", // Snap each article to the top of the viewport
-            padding: 3,
-          }}
-        >
-          <Card sx={{ width: "80%", boxShadow: 3 }}>
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
-                {article.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {renderDescriptionWithNewlines(article.description)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
+          article={article}
+          renderDescriptionWithNewlines={renderDescriptionWithNewlines}
+        />
       ))}
     </Container>
   );

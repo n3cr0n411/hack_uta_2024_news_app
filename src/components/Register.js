@@ -1,4 +1,3 @@
-// src/components/Register.js
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +13,7 @@ const Register = () => {
   const handleRegister = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/main");
+      navigate("/choose-interests");  // Redirect to ChooseInterests page after registration
     } catch (error) {
       setError(error.message);
     }

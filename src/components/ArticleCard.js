@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, Typography, Box } from "@mui/material";
 
 // ArticleCard component to render individual articles
-const ArticleCard = ({ article, renderDescriptionWithNewlines }) => {
+const ArticleCard = ({ title, description, trustscore, source, sentimentanalysis, politicalalignment, article, renderDescriptionWithNewlines }) => {
   return (
     <Box
       sx={{
@@ -23,7 +23,18 @@ const ArticleCard = ({ article, renderDescriptionWithNewlines }) => {
           </Typography>
           <Typography variant="body1" color="text.secondary">
             {renderDescriptionWithNewlines(article.description)}
-            {renderDescriptionWithNewlines(article.source)}
+          </Typography>
+          <Typography variant="subtitle2">
+              <strong>Political Alignment: </strong>
+              {renderDescriptionWithNewlines(article.politicalalignment)}
+          </Typography>
+          <Typography variant="subtitle2">
+              <strong>Trust Score: </strong>
+              {renderDescriptionWithNewlines(article.trustscore)}
+          </Typography>
+          <Typography variant="subtitle2">
+              <strong>Sentiment Analysis: </strong>
+              {renderDescriptionWithNewlines(article.sentimentanalysis)}
           </Typography>
         </CardContent>
       </Card>

@@ -6,7 +6,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase"; // Firebase config & Firestore
 
 const topics = [
-  "Humantiarian", "Feminism", "Visas", "Statistics", "Disaster",
+  "Humanitarian", "Feminism", "Visas", "Statistics", "Disaster",
   "Issues", "Motherhood", "Terrorism", "Events", "Law"
 ];
 

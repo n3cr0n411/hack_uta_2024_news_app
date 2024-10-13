@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { Container, AppBar, Toolbar, Button, Box } from "@mui/material";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, collection, getDoc, getDocs } from "firebase/firestore"; // Corrected imports
 import { db } from "../firebase"; // Firestore configuration
-import ArticleCard from "./ArticleCard"; // Import the new ArticleCard component
+import ArticleCard from "./ArticleCard"; // Import the ArticleCard component
 
 const MainPage = () => {
-  // State for storing user interests
   const [interests, setInterests] = useState([]);
+  const [selectedInterest, setSelectedInterest] = useState(null);
+  const [articles, setArticles] = useState([]);
   const auth = getAuth();
 
   // Fetch user interests from Firestore
@@ -17,9 +18,14 @@ const MainPage = () => {
       const user = auth.currentUser;
       if (user) {
         const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
+        const docSnap = await getDoc(userRef); // getDoc is now properly imported
         if (docSnap.exists()) {
-          setInterests(docSnap.data().interests || []);
+          const userInterests = docSnap.data().interests || [];
+          setInterests(userInterests);
+          if (userInterests.length > 0) {
+            // Set the first interest as the default selected interest
+            setSelectedInterest(userInterests[0]);
+          }
         }
       }
     };
@@ -27,34 +33,27 @@ const MainPage = () => {
     fetchInterests();
   }, [auth]);
 
-  // Sample data for articles
-  const sampleArticles = [
-    {
-      id: 1,
-      title: "Ukraine: Angry Zelensky vows to punish Russian atrocities",
-      description: "Description: The Ukrainian president says the country will not forgive or forget those who murder its civilians. \n\nGemini Response: President Zelensky vowed to punish Russian troops for atrocities in Ukraine, accusing them of deliberately targeting civilians. Ukrainian officials report attacks on civilian targets, including hospitals and schools, resulting in numerous casualties and hindering evacuations. Although Russia denies these allegations, the UN confirms over 364 civilian deaths. Zelensky condemned the attacks and criticized Western governments for not taking stronger action.\n\nTrust score: 9\nSource: BBC\nSentiment analysis: Negative\nPolitical alignment: Neutral.",
-    },
-    {
-      id: 2,
-      title: "Article Title 2",
-      description: "This is another sample description \nfor article 2. Here is more text.",
-    },
-    {
-      id: 3,
-      title: "Article Title 3",
-      description: "This is a multiline description \nfor article 3. It also spans\n multiple lines.",
-    },
-    {
-      id: 4,
-      title: "Article Title 4",
-      description: "This is another sample description for article 4.",
-    },
-    {
-      id: 5,
-      title: "Article Title 5",
-      description: "This is another sample description for article 5.",
-    },
-  ];
+  // Fetch articles based on the selected interest
+  useEffect(() => {
+    if (selectedInterest) {
+      const fetchArticles = async () => {
+        const articlesRef = collection(db, "interests", selectedInterest, "articles");
+        const articlesSnapshot = await getDocs(articlesRef);
+        const articlesList = articlesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setArticles(articlesList);
+      };
+
+      fetchArticles();
+    }
+  }, [selectedInterest]);
+
+  // Function to handle interest selection from the navbar
+  const handleInterestSelect = (interest) => {
+    setSelectedInterest(interest);
+  };
 
   // Function to handle rendering newlines as <br /> in JSX
   const renderDescriptionWithNewlines = (text) => {
@@ -74,7 +73,12 @@ const MainPage = () => {
           <Box sx={{ flexGrow: 1 }}>
             {interests.length > 0 ? (
               interests.map((interest, index) => (
-                <Button key={index} color="inherit" sx={{ margin: 1 }}>
+                <Button
+                  key={index}
+                  color="inherit"
+                  sx={{ margin: 1 }}
+                  onClick={() => handleInterestSelect(interest)}
+                >
                   {interest}
                 </Button>
               ))
@@ -101,14 +105,17 @@ const MainPage = () => {
           paddingTop: 8, // Offset content to avoid overlap with the fixed navbar
         }}
       >
-        {/* Map over articles and render each one using ArticleCard */}
-        {sampleArticles.map((article) => (
-          <ArticleCard
-            key={article.id}
-            article={article}
-            renderDescriptionWithNewlines={renderDescriptionWithNewlines}
-          />
-        ))}
+        {articles.length > 0 ? (
+          articles.map((article) => (
+            <ArticleCard
+              key={article.id}
+              article={article}
+              renderDescriptionWithNewlines={renderDescriptionWithNewlines}
+            />
+          ))
+        ) : (
+          <Box sx={{ padding: 2 }}>No articles available for this interest.</Box>
+        )}
       </Container>
     </Box>
   );

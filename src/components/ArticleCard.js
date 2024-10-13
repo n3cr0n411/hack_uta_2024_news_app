@@ -23,6 +23,7 @@ const ArticleCard = ({ article, renderDescriptionWithNewlines }) => {
           </Typography>
           <Typography variant="body1" color="text.secondary">
             {renderDescriptionWithNewlines(article.description)}
+            {renderDescriptionWithNewlines(article.source)}
           </Typography>
         </CardContent>
       </Card>

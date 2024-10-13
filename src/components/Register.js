@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase"; // Firebase config & Firestore
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"; // Firestore functions
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -12,8 +13,22 @@ const Register = () => {
 
   const handleRegister = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/choose-interests");  // Redirect to ChooseInterests page after registration
+      // Create the user using Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user; // Get the authenticated user (contains UID and email)
+
+      // Navigate to the ChooseInterests page
+      navigate("/choose-interests");
+
+      // Optionally, you can directly save the user information here if needed
+      // For example, if you want to save some initial data like createdAt:
+      const userRef = doc(db, "users", user.uid);  // Use UID as the document ID
+      await setDoc(userRef, {
+        uid: user.uid,              // Store the user's unique ID
+        email: user.email,          // Store the user's email
+        createdAt: serverTimestamp(),  // Store when the account was created
+      });
+
     } catch (error) {
       setError(error.message);
     }

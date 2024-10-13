@@ -3,11 +3,11 @@ import { Button, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase"; // Your Firebase configuration
+import { db } from "../firebase"; // Firebase config & Firestore
 
 const topics = [
-  "Technology", "Health", "Science", "Business", "Sports",
-  "Education", "Politics", "Entertainment", "Environment", "Travel"
+  "Humantiarian", "Feminism", "Visas", "Statistics", "Disaster",
+  "Issues", "Motherhood", "Terrorism", "Events", "Law"
 ];
 
 const ChooseInterests = () => {
@@ -28,12 +28,15 @@ const ChooseInterests = () => {
       alert("Please select at least one topic.");
     } else {
       try {
-        const user = auth.currentUser;
+        const user = auth.currentUser;  // Get the currently authenticated user
 
         if (user) {
-          // Save selected topics to Firestore
-          const userRef = doc(db, "users", user.uid);
-          await setDoc(userRef, { interests: selectedTopics }, { merge: true });
+          // Save selected topics to Firestore using the user's UID
+          const userRef = doc(db, "users", user.uid);  // Use the user's UID as the document ID
+          await setDoc(userRef, {
+            interests: selectedTopics,  // Save the selected interests
+            updatedAt: new Date(),      // Optionally, add an update timestamp
+          }, { merge: true });          // Merge this data with existing data
 
           console.log("Interests saved successfully");
           navigate("/main");  // Navigate to the main page after submission

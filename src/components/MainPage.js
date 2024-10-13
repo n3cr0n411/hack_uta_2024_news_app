@@ -1,9 +1,32 @@
 // src/components/MainPage.js
-import React from "react";
-import { Container } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Container, AppBar, Toolbar, Button, Box } from "@mui/material";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase"; // Firestore configuration
 import ArticleCard from "./ArticleCard"; // Import the new ArticleCard component
 
 const MainPage = () => {
+  // State for storing user interests
+  const [interests, setInterests] = useState([]);
+  const auth = getAuth();
+
+  // Fetch user interests from Firestore
+  useEffect(() => {
+    const fetchInterests = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          setInterests(docSnap.data().interests || []);
+        }
+      }
+    };
+
+    fetchInterests();
+  }, [auth]);
+
   // Sample data for articles
   const sampleArticles = [
     {
@@ -44,27 +67,50 @@ const MainPage = () => {
   };
 
   return (
-    <Container
-      sx={{
-        display: "block", // Ensure articles stack vertically
-        height: "100vh", // Full viewport height for scrolling
-        overflowY: "auto", // Enable vertical scrolling
-        scrollSnapType: "y mandatory", // Snap scrolling on y-axis
-        padding: 0,
-        margin: 0,
-        width: "100%", // Full-width container
-        backgroundColor: "#f5f5f5", // Background for better readability
-      }}
-    >
-      {/* Map over articles and render each one using ArticleCard */}
-      {sampleArticles.map((article) => (
-        <ArticleCard
-          key={article.id}
-          article={article}
-          renderDescriptionWithNewlines={renderDescriptionWithNewlines}
-        />
-      ))}
-    </Container>
+    <Box>
+      {/* Static navbar at the top */}
+      <AppBar position="fixed" sx={{ backgroundColor: "#333" }}>
+        <Toolbar>
+          <Box sx={{ flexGrow: 1 }}>
+            {interests.length > 0 ? (
+              interests.map((interest, index) => (
+                <Button key={index} color="inherit" sx={{ margin: 1 }}>
+                  {interest}
+                </Button>
+              ))
+            ) : (
+              <Button color="inherit" disabled>
+                Loading interests...
+              </Button>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* Main content with articles */}
+      <Container
+        sx={{
+          display: "block", // Ensure articles stack vertically
+          height: "100vh", // Full viewport height for scrolling
+          overflowY: "auto", // Enable vertical scrolling
+          scrollSnapType: "y mandatory", // Snap scrolling on y-axis
+          padding: 0,
+          margin: 0,
+          width: "100%", // Full-width container
+          backgroundColor: "#f5f5f5", // Background for better readability
+          paddingTop: 8, // Offset content to avoid overlap with the fixed navbar
+        }}
+      >
+        {/* Map over articles and render each one using ArticleCard */}
+        {sampleArticles.map((article) => (
+          <ArticleCard
+            key={article.id}
+            article={article}
+            renderDescriptionWithNewlines={renderDescriptionWithNewlines}
+          />
+        ))}
+      </Container>
+    </Box>
   );
 };
 
